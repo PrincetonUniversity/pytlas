@@ -180,18 +180,67 @@ def mse(arr0, arr1):
     '''
     return np.square(np.subtract(arr0, arr1)).mean()
     
-
-
-def make_histogram(arr0, arr1, bins = 200):
-  '''
+def normalize(vol):
+    return (vol - vol.min()) / (vol.max() - vol.min())
+def make_histogram(arr0, arr1, bins = 200, norm = True, nonzeros=True):
+  '''nonzeros - adds a one value to each bin. Don't use it usin earth movers!
   '''
   minval = int(min(np.min(arr0), np.min(arr1)))
   maxval = int(max(np.max(arr0), np.max(arr1)))
-  bins = range(minval, maxval, (maxval-minval)/bins)
-  h0 = np.histogram(arr0, bins=bins)[0] / float(arr0.ravel().shape[0])
-  h1 = np.histogram(arr1, bins=bins)[0] / float(arr1.ravel().shape[0])
   
-  return h0, h1
+  if norm:
+      arr0 = normalize(arr0)
+      arr1 = normalize(arr1)
+      bins = np.linspace(0, 1, bins)
+      h0 = np.histogram(arr0, bins=bins)[0] / float(arr0.ravel().shape[0])
+      h1 = np.histogram(arr1, bins=bins)[0] / float(arr1.ravel().shape[0])
+      return h0, h1
+  else:     
+      bins = range(minval, maxval, (maxval-minval)/bins)
+      h0 = np.histogram(arr0, bins=bins)[0] / float(arr0.ravel().shape[0])
+      h1 = np.histogram(arr1, bins=bins)[0] / float(arr1.ravel().shape[0])
+      if nonzeros:
+          h0 = h0+1
+          h1 = h1+1
+      return h0, h1
+  
+def make_histogram(arr0, arr1, bins = 200, norm = True, nonzeros=True):
+  '''nonzeros - adds a one value to each bin. Don't use it usin earth movers!
+  
+  #try to fix norm/binning issues. Maybe log space and or just important ranges after changing to 8 bit ims!
+  
+  '''
+  #minval = int(min(np.min(arr0), np.min(arr1)))
+  #maxval = int(max(np.max(arr0), np.max(arr1)))
+  minval = 0
+  maxval = 255
+  
+  if norm:
+      arr0 = normalize(arr0)
+      arr1 = normalize(arr1)
+      bins = np.linspace(0, 1, bins)
+      h0 = np.histogram(arr0, bins=bins)[0]
+      h1 = np.histogram(arr1, bins=bins)[0]
+      return h0, h1
+  else:     
+      bins = range(minval, maxval, (maxval-minval)/bins)
+      h0 = np.histogram(arr0, bins=bins)[0] / float(arr0.ravel().shape[0])
+      h1 = np.histogram(arr1, bins=bins)[0] / float(arr1.ravel().shape[0])
+      if nonzeros:
+          h0 = h0+1
+          h1 = h1+1
+      return h0, h1
+  
+def bin_histograms(arr, bins = 200):
+    #minval = int(np.min(arr))
+    #maxval = int(np.max(arr))
+    minval = 0
+    maxval = 255
+    bins = range(minval, maxval, (maxval-minval)/bins)
+    h = np.histogram(arr, bins=bins)[0]
+    return h
+
+    
 
 if __name__ == '__main__':
 	arr0 = np.random.randint(0,100,(200,200,200))
