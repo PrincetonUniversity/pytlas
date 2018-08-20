@@ -8,7 +8,7 @@ import numpy as np
 
 
 
-def register_volumes_to_seed(input_folder, output_folder, parameters, seed, verbose = True):
+def register_volumes_to_seed(input_folder, output_folder, parameters, seed, verbose = True, dtype='uint16'):
     '''Main function to run registration on a tifffiles
 
     Inputs
@@ -17,7 +17,7 @@ def register_volumes_to_seed(input_folder, output_folder, parameters, seed, verb
     output_folder = place to save registration data
     parameters = list of paths to parameter files for registration in the *order they should be applied*  
     seed = path to tifffile that will be used a fixed image for registration
-
+    dtype = data type to save tif
     '''
     
     #make output folder:
@@ -68,7 +68,7 @@ def generate_median_image(output_folder, parameters, memmappth, dst, verbose = T
     
     #median volume
     vol = np.median(arr, axis=0)
-    tifffile.imsave(dst, vol)
+    tifffile.imsave(dst, vol.astype(dtype))
     if verbose: sys.stdout.write('...completed'); sys.stdout.flush()
     return
 
